@@ -1,0 +1,72 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel buildDepthTex
+#pragma kernel buildColorTex
+#pragma kernel buildPointCloud
+
+struct PointCloudData
+{
+    float3 position;
+    float4 color;
+};
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> _DepthTex;
+RWTexture2D<float4> _ColorTex;
+StructuredBuffer<int> _DepthData;
+StructuredBuffer<uint> _ColorData;
+StructuredBuffer<float2> _ColorSpacePointData;
+StructuredBuffer<float3> _CameraSpacePointData;
+RWStructuredBuffer<PointCloudData> _PointCloudData;
+
+int _DWidth;
+int _DHeight;
+int _CWidth;
+int _CHeight;
+
+[numthreads(8, 8, 1)]
+void buildDepthTex(uint3 id : SV_DispatchThreadID)
+{
+	// TODO: insert actual code here!
+    uint idx = (_DHeight - id.y) * _DWidth + id.x;
+    _DepthTex[id.xy] = _DepthData[idx] / 8000.0;
+}
+
+half4 colorDataToColor(uint cData)
+{
+    half4 col = 0;
+    col.r = cData & 0xFF;
+    cData >>= 8;
+    col.g = cData & 0xFF;
+    cData >>= 8;
+    col.b = cData & 0xFF;
+    cData >>= 8;
+    col.a = cData & 0xFF;
+    return col * 0.00390625; // col/256
+}
+
+[numthreads(8, 8, 1)]
+void buildColorTex(uint3 id : SV_DispatchThreadID)
+{
+    uint idx = (_CHeight - id.y) * _CWidth + id.x;
+    uint colorData = _ColorData[idx];
+    half4 col = colorDataToColor(colorData);
+
+    _ColorTex[id.xy] = col;
+
+}
+
+[numthreads(8, 1, 1)]
+void buildPointCloud(uint3 id : SV_DispatchThreadID)
+{
+    uint idx = id.x;
+    PointCloudData pcData = (PointCloudData) 0;
+    pcData.position = _CameraSpacePointData[idx];
+
+    float2 colorPos = floor(_ColorSpacePointData[idx] + 0.5);
+    uint colorIdx = (colorPos.y * _CWidth) + colorPos.x;
+    uint colorData = _ColorData[colorIdx];
+    pcData.color = colorDataToColor(colorData);
+
+    _PointCloudData[idx] = pcData;
+}

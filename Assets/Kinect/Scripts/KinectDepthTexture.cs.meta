@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 77c65e89f837a7d4a81dc38ac2a50526
+timeCreated: 1510327413
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - depthTexGen: {fileID: 7200000, guid: 8db768490a1daef4aba3f01d76d580dc, type: 3}
+  - depthTexture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

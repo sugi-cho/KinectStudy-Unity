@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 1d74b4aa10623324b8a78f5b9b0fa121
+timeCreated: 1510317779
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - manager: {instanceID: 0}
+  - colorTexGen: {fileID: 7200000, guid: 8db768490a1daef4aba3f01d76d580dc, type: 3}
+  - colorTexture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
