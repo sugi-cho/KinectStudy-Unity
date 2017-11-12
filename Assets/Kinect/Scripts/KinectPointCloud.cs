@@ -20,6 +20,7 @@ public class KinectPointCloud : MonoBehaviour
     ushort[] depthData;
     CameraSpacePoint[] cameraSpacePoints;
     ColorSpacePoint[] colorSpacePoints;
+    [SerializeField] Windows.Kinect.Vector4 floorClipPlane;
 
     int depthDataLength;
 
@@ -37,7 +38,7 @@ public class KinectPointCloud : MonoBehaviour
         kinect = KinectSensor.GetDefault();
         if (kinect != null)
         {
-            reader = kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Color);
+            reader = kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Color | FrameSourceTypes.Body);
 
             var colorDesc = kinect.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
 
@@ -89,6 +90,7 @@ public class KinectPointCloud : MonoBehaviour
             {
                 var colorFrame = frame.ColorFrameReference.AcquireFrame();
                 var depthFrame = frame.DepthFrameReference.AcquireFrame();
+                var bodyFrame = frame.BodyFrameReference.AcquireFrame();
 
                 if (colorFrame != null)
                 {
@@ -107,6 +109,16 @@ public class KinectPointCloud : MonoBehaviour
 
                     colorSpacePointBuffer.SetData(colorSpacePoints);
                     cameraSpacePointBuffer.SetData(cameraSpacePoints);
+                }
+                if (bodyFrame != null)
+                {
+                    floorClipPlane = bodyFrame.FloorClipPlane;
+                    var kinectRot = Quaternion.FromToRotation(new Vector3(floorClipPlane.X, floorClipPlane.Y, floorClipPlane.Z), Vector3.up);
+                    var kinectHeight = floorClipPlane.W;
+                    pointCloudCS.SetVector("_ResetRot", new UnityEngine.Vector4 (kinectRot.x,kinectRot.y,kinectRot.z,kinectRot.w));
+                    pointCloudCS.SetFloat("_KinectHeight", kinectHeight);
+
+                    bodyFrame.Dispose();
                 }
             }
 

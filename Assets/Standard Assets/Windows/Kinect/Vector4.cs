@@ -6,6 +6,7 @@ namespace Windows.Kinect
     //
     // Windows.Kinect.Vector4
     //
+    [RootSystem.Serializable]
     [RootSystem.Runtime.InteropServices.StructLayout(RootSystem.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct Vector4
     {

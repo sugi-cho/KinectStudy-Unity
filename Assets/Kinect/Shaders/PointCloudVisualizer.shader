@@ -61,24 +61,24 @@
 		v2f p3 = getVertexOut(idx + Size_X+1);
 
 		if (edgeLength(p0.pos.xyz, p1.pos.xyz, p2.pos.xyz) < _EdgeThreshold) {
-			p0.normal = p1.normal = p2.normal = normalize(cross(p1.wPos - p0.wPos, p2.wPos - p0.wPos));
+			p0.normal = p1.normal = p2.normal = cross(normalize(p2.wPos - p0.wPos), normalize(p1.wPos - p0.wPos));
 			p0.bary = half3(1, 0, 0);
 			triStream.Append(p0);
-			p1.bary = half3(0, 1, 0);
-			triStream.Append(p1);
-			p2.bary = half3(0, 0, 1);
+			p2.bary = half3(0, 1, 0);
 			triStream.Append(p2);
+			p1.bary = half3(0, 0, 1);
+			triStream.Append(p1);
 			triStream.RestartStrip();
 		}
 
 		if (edgeLength(p1.pos.xyz, p3.pos.xyz, p2.pos.xyz) < _EdgeThreshold) {
-			p1.normal = p3.normal = p2.normal = normalize(cross(p3.wPos - p1.wPos, p2.wPos - p1.wPos));
+			p1.normal = p3.normal = p2.normal = cross(normalize(p2.wPos - p1.wPos), normalize(p3.wPos - p1.wPos));
 			p1.bary = half3(1, 0, 0);
 			triStream.Append(p1);
-			p3.bary = half3(0, 1, 0);
-			triStream.Append(p3);
-			p2.bary = half3(0, 0, 1);
+			p2.bary = half3(0, 1, 0);
 			triStream.Append(p2);
+			p3.bary = half3(0, 0, 1);
+			triStream.Append(p3);
 			triStream.RestartStrip();
 		}
 	}

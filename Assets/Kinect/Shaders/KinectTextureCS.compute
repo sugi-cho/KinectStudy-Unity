@@ -3,6 +3,8 @@
 #pragma kernel buildColorTex
 #pragma kernel buildPointCloud
 
+#include "Quaternion.cginc"
+
 struct PointCloudData
 {
     float3 position;
@@ -23,6 +25,8 @@ int _DWidth;
 int _DHeight;
 int _CWidth;
 int _CHeight;
+float4 _ResetRot;
+float _KinectHeight;
 
 [numthreads(8, 8, 1)]
 void buildDepthTex(uint3 id : SV_DispatchThreadID)
@@ -56,12 +60,18 @@ void buildColorTex(uint3 id : SV_DispatchThreadID)
 
 }
 
+
+
 [numthreads(8, 1, 1)]
 void buildPointCloud(uint3 id : SV_DispatchThreadID)
 {
     uint idx = id.x;
     PointCloudData pcData = (PointCloudData) 0;
-    pcData.position = _CameraSpacePointData[idx];
+    float3 pos = _CameraSpacePointData[idx];
+    pos = rotateWithQuaternion(pos, _ResetRot);
+    pos.x *= -1;
+    pos.y += _KinectHeight;
+    pcData.position = pos;
 
     float2 colorPos = floor(_ColorSpacePointData[idx] + 0.5);
     uint colorIdx = (colorPos.y * _CWidth) + colorPos.x;
