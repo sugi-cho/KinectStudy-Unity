@@ -6,7 +6,7 @@ namespace Windows.Kinect
     //
     // Windows.Kinect.CameraSpacePoint
     //
-    [RootSystem.Runtime.InteropServices.StructLayout(RootSystem.Runtime.InteropServices.LayoutKind.Sequential)]
+    [RootSystem.Runtime.InteropServices.StructLayout(RootSystem.Runtime.InteropServices.LayoutKind.Sequential), System.Serializable]
     public struct CameraSpacePoint
     {
         public float X { get; set; }

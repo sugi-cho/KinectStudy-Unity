@@ -92,7 +92,7 @@
 		half l = dot(i.normal, float3(0.5, 1.0, 0.0));
 		l = l * 0.5 + 0.5;
 
-		fixed4 col = i.color * (l+w);
+		fixed4 col = i.color;
 		return col;
 	}
 	ENDCG

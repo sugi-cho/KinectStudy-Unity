@@ -33,9 +33,30 @@ public class KinectPointCloud : MonoBehaviour
 
     public Material pointVisualizer;
 
+    public void SetDepth(DepthFrameWebsocketData.FrameData frameDataRemote)
+    {
+        depthData = frameDataRemote.depthData;
+
+        kinect.CoordinateMapper.MapDepthFrameToColorSpace(depthData, colorSpacePoints);
+        kinect.CoordinateMapper.MapDepthFrameToCameraSpace(depthData, cameraSpacePoints);
+
+        colorSpacePointBuffer.SetData(colorSpacePoints);
+        cameraSpacePointBuffer.SetData(cameraSpacePoints);
+        
+
+        var kernel = pointCloudCS.FindKernel("buildPointCloud");
+        pointCloudCS.SetBuffer(kernel, "_ColorData", colorBuffer);
+        pointCloudCS.SetBuffer(kernel, "_ColorSpacePointData", colorSpacePointBuffer);
+        pointCloudCS.SetBuffer(kernel, "_CameraSpacePointData", cameraSpacePointBuffer);
+        pointCloudCS.SetBuffer(kernel, "_PointCloudData", pointCloudBuffer);
+        pointCloudCS.Dispatch(kernel, depthDataLength / 8, 1, 1);
+    }
+
     void Start()
     {
+        DepthFrameWebsocketData.OnFrameDataReceived += SetDepth;
         kinect = KinectSensor.GetDefault();
+
         if (kinect != null)
         {
             reader = kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Color | FrameSourceTypes.Body);
@@ -66,9 +87,8 @@ public class KinectPointCloud : MonoBehaviour
             pointCloudCS.SetInt("_CHeight", colorDesc.Height);
             pointCloudCS.SetInt("_DWidth", depthDesc.Width);
             pointCloudCS.SetInt("_DHeight", depthDesc.Height);
+            pointCloudCS.SetVector("_ResetRot", new UnityEngine.Vector4(0, 0, 0, 1));
         }
-
-        Debug.Log(Marshal.SizeOf(typeof(CameraSpacePoint)));
     }
 
     private void OnApplicationQuit()
@@ -112,7 +132,10 @@ public class KinectPointCloud : MonoBehaviour
                 }
                 if (bodyFrame != null)
                 {
+                    var temp = floorClipPlane;
                     floorClipPlane = bodyFrame.FloorClipPlane;
+                    if (floorClipPlane.W == 0)
+                        floorClipPlane.W = temp.W;
                     var kinectRot = Quaternion.FromToRotation(new Vector3(floorClipPlane.X, floorClipPlane.Y, floorClipPlane.Z), Vector3.up);
                     var kinectHeight = floorClipPlane.W;
                     pointCloudCS.SetVector("_ResetRot", new UnityEngine.Vector4 (kinectRot.x,kinectRot.y,kinectRot.z,kinectRot.w));
