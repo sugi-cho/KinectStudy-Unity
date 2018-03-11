@@ -33,28 +33,8 @@ public class KinectPointCloud : MonoBehaviour
 
     public Material pointVisualizer;
 
-    public void SetDepth(DepthFrameWebsocketData.FrameData frameDataRemote)
-    {
-        depthData = frameDataRemote.depthData;
-
-        kinect.CoordinateMapper.MapDepthFrameToColorSpace(depthData, colorSpacePoints);
-        kinect.CoordinateMapper.MapDepthFrameToCameraSpace(depthData, cameraSpacePoints);
-
-        colorSpacePointBuffer.SetData(colorSpacePoints);
-        cameraSpacePointBuffer.SetData(cameraSpacePoints);
-        
-
-        var kernel = pointCloudCS.FindKernel("buildPointCloud");
-        pointCloudCS.SetBuffer(kernel, "_ColorData", colorBuffer);
-        pointCloudCS.SetBuffer(kernel, "_ColorSpacePointData", colorSpacePointBuffer);
-        pointCloudCS.SetBuffer(kernel, "_CameraSpacePointData", cameraSpacePointBuffer);
-        pointCloudCS.SetBuffer(kernel, "_PointCloudData", pointCloudBuffer);
-        pointCloudCS.Dispatch(kernel, depthDataLength / 8, 1, 1);
-    }
-
     void Start()
     {
-        DepthFrameWebsocketData.OnFrameDataReceived += SetDepth;
         kinect = KinectSensor.GetDefault();
 
         if (kinect != null)

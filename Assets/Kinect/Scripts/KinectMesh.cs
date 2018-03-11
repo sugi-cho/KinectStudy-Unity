@@ -36,7 +36,7 @@ public class KinectMesh : MonoBehaviour
     public Material meshVisalizer;
     public Camera cameraToRender;
     public KinectBody[] kinectBodies;
-
+    public bool useKinectRot = true;
 
     void Start()
     {
@@ -139,6 +139,11 @@ public class KinectMesh : MonoBehaviour
                         floorClipPlane.W = temp.W;
                     var kinectRot = Quaternion.FromToRotation(new Vector3(floorClipPlane.X, floorClipPlane.Y, floorClipPlane.Z), Vector3.up);
                     var kinectHeight = floorClipPlane.W;
+                    if (!useKinectRot)
+                    {
+                        kinectRot = Quaternion.identity;
+                        kinectHeight = 0f;
+                    }
                     pointCloudCS.SetVector("_ResetRot", new UnityEngine.Vector4(kinectRot.x, kinectRot.y, kinectRot.z, kinectRot.w));
                     pointCloudCS.SetFloat("_KinectHeight", kinectHeight);
 
@@ -150,7 +155,7 @@ public class KinectMesh : MonoBehaviour
 
                     if (cameraToRender != null)
                     {
-                        cameraToRender.transform.position = Vector3.up * floorClipPlane.W;
+                        cameraToRender.transform.position = Vector3.up * kinectHeight;
                         cameraToRender.transform.rotation = kinectRot;
                     }
                 }

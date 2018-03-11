@@ -98,7 +98,7 @@
 		float2 depthUV = float2(i.idx % 512 / 512.0, i.idx / 512 / 424.0);
 		fixed bodyIdx = tex2D(_BodyIdxTex, depthUV).r;
 
-		if (bodyIdx == 1) discard;
+		//if (bodyIdx == 1) discard;
 
 		fixed4 col = tex2D(_ColorTex, i.uv);
 		return col;
